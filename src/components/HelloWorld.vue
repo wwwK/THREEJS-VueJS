@@ -7,7 +7,8 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import Stats from 'stats.js'
-
+import { TweenMax} from "gsap";
+window.THREE = THREE;
 export default {
   name: 'HelloWorld',
   data () {
@@ -22,6 +23,8 @@ export default {
   },
   methods: {
     init () {
+        this.scene = new THREE.Scene()
+      window.scene = this.scene;
       // set container
       this.container = this.$refs.sceneContainer
 
@@ -39,8 +42,7 @@ export default {
       this.camera = camera
 
       // create scene
-      this.scene = new THREE.Scene()
-      window.scene = this.scene;
+    
 
       // this.scene.background = new THREE.Color('skyblue')
 
@@ -72,10 +74,17 @@ export default {
       this.renderer.setSize(this.container.clientWidth, this.container.clientHeight)
 
       const loader = new GLTFLoader()
-
       loader.load(
         '/three-assets/adamHead.gltf',
         gltf => {
+          gltf.scene.traverse(function (child){
+            const checkSum = 'node_Eye_R_Blend';
+            if(child.name.includes(checkSum)){
+                child.rotation.x = 3;
+                TweenMax.from(  child.rotation, 7, {x:5})
+                child.material.color.r =  255 ;
+            }
+          });
           gltf.scene.rotation.y = 3;
           this.scene.add(gltf.scene)
         },
