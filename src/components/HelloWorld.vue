@@ -18,13 +18,23 @@ export default {
       camera: null,
       controls: null,
       renderer: null,
-      stats: null
+      stats: null,
+      xMauseValue:null,
+      yMauseValue:null
     }
   },
   methods: {
     init () {
-        this.scene = new THREE.Scene()
+          if (window.Event) {
+            document.captureEvents(Event.MOUSEMOVE);
+            }
+          document.onmousemove = this.getCursorXY;
+
+      this.scene = new THREE.Scene()
       window.scene = this.scene;
+
+      // this.scene.rotation(-0.40,3.14,0);
+      // this.scene.scale(3.32);
       // set container
       this.container = this.$refs.sceneContainer
 
@@ -38,7 +48,7 @@ export default {
       const near = 0.1 // the near clipping plane
       const far = 30 // the far clipping plane
       const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
-      camera.position.set(0, 5, 10)
+      camera.position.set(-1, 1, 3)
       this.camera = camera
 
       // create scene
@@ -78,11 +88,14 @@ export default {
         '/three-assets/adamHead.gltf',
         gltf => {
           gltf.scene.traverse(function (child){
-            const checkSum = 'node_Eye_R_Blend';
-            if(child.name.includes(checkSum)){
-                child.rotation.x = 3;
-                TweenMax.from(  child.rotation, 7, {x:5})
-                child.material.color.r =  255 ;
+            const checkRightEye = 'node_Eye_R_Blend';
+            const checkLeftEye = 'node_Eye_L_Blend';
+            if(child.name.includes(checkRightEye)){
+                TweenMax.to(child.rotation, 5,  {z: '-=0.9'})
+            }
+
+             if(child.name.includes(checkLeftEye)){
+                TweenMax.to(child.rotation, 5,  {z: '-=0.9'})
             }
           });
           gltf.scene.rotation.y = 3;
@@ -103,6 +116,13 @@ export default {
     }
   },
   mounted () {
+    window.addEventListener('mousemove', function (e) {
+      this.xMauseValue = e.x;
+      this.yMauseValue = e.y;
+
+
+      console.log(e.x  +' || ' + e.y);
+    });
     this.init()
   }
 }
